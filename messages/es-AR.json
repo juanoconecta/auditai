@@ -1,0 +1,85 @@
+{
+  "nav": {
+    "login": "Iniciar sesión",
+    "cta": "Empezar gratis"
+  },
+  "hero": {
+    "headline": "Auditá tu perfil con IA en 30 segundos",
+    "subheadline": "Obtené un informe profesional con score por categoría, benchmark vs industria, FODA y recomendaciones con impacto estimado.",
+    "inputPlaceholder": "@usuario o URL del perfil",
+    "cta": "Auditar gratis",
+    "badge": "No requiere tarjeta de crédito",
+    "stat1Label": "segundos",
+    "stat1Value": "30",
+    "stat2Label": "redes sociales",
+    "stat2Value": "3",
+    "stat3Label": "métricas",
+    "stat3Value": "6"
+  },
+  "howItWorks": {
+    "title": "¿Cómo funciona?",
+    "step1Title": "Ingresá el perfil",
+    "step1Desc": "Pegá el @ o URL de Instagram, TikTok o LinkedIn.",
+    "step2Title": "La IA analiza",
+    "step2Desc": "Claude analiza más de 6 métricas clave en segundos.",
+    "step3Title": "Recibís el informe",
+    "step3Desc": "Score por categoría, FODA y recomendaciones accionables.",
+    "step4Title": "Descargá el PDF",
+    "step4Desc": "Informe profesional con tu marca listo para compartir."
+  },
+  "demo": {
+    "title": "Así se ve el informe",
+    "subtitle": "Ejemplo real de auditoría para @cocacola",
+    "score": "58",
+    "scoreLabel": "Score general",
+    "profile": "@cocacola",
+    "network": "Instagram"
+  },
+  "pricing": {
+    "title": "Precios simples y transparentes",
+    "subtitle": "Empezá gratis. Pagás solo cuando querés más.",
+    "plan1Name": "Gratis",
+    "plan1Price": "$0",
+    "plan1Period": "para siempre",
+    "plan1Feature1": "1 auditoría por mes",
+    "plan1Feature2": "Score general",
+    "plan1Feature3": "3 recomendaciones",
+    "plan1Feature4": "Sin descarga PDF",
+    "plan1Cta": "Empezar gratis",
+    "plan2Name": "Por informe",
+    "plan2Price": "$9",
+    "plan2Period": "por auditoría",
+    "plan2Feature1": "Todo lo del plan Gratis",
+    "plan2Feature2": "Informe completo con FODA",
+    "plan2Feature3": "Benchmark vs industria",
+    "plan2Feature4": "Descarga PDF con tu marca",
+    "plan2Feature5": "Proyección a 90 días",
+    "plan2Cta": "Comprar informe",
+    "plan3Name": "Pro",
+    "plan3Price": "$19",
+    "plan3Period": "por mes",
+    "plan3Feature1": "Todo lo anterior, más:",
+    "plan3Feature2": "Auditorías ilimitadas",
+    "plan3Feature3": "Historial y comparativas",
+    "plan3Feature4": "Soporte prioritario",
+    "plan3Feature5": "API access",
+    "plan3Cta": "Empezar Pro",
+    "popular": "Más popular"
+  },
+  "footer": {
+    "poweredBy": "Powered by JuanoConecta",
+    "domain": "auditai.app",
+    "rights": "Todos los derechos reservados."
+  },
+  "analyzing": {
+    "title": "Analizando tu perfil...",
+    "step1": "Detectando red social y verificando perfil",
+    "step2": "Analizando bio, foto de perfil y highlights",
+    "step3": "Evaluando estética visual y coherencia de feed",
+    "step4": "Calculando métricas de engagement",
+    "step5": "Comparando con benchmarks de la industria",
+    "step6": "Generando FODA y cliente ideal",
+    "step7": "Calculando proyección a 90 días",
+    "step8": "Preparando tu informe profesional"
+  }
+}
