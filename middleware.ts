@@ -2,9 +2,11 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  // Si llega un ?code= en cualquier ruta que no sea el callback, redirigir al callback
-  const code = request.nextUrl.searchParams.get("code");
-  if (code && !request.nextUrl.pathname.startsWith("/auth/callback")) {
+  const { pathname, searchParams } = request.nextUrl;
+
+  // Redirigir ?code= al callback de auth
+  const code = searchParams.get("code");
+  if (code && !pathname.startsWith("/auth/callback")) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/callback";
     url.search = `?code=${code}`;
@@ -36,13 +38,11 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Proteger /dashboard — redirigir a /login si no hay sesión
-  if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
+  if (!user && pathname.startsWith("/dashboard")) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Si ya está logueado, redirigir de /login y /registro al dashboard
-  if (user && (request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/registro")) {
+  if (user && (pathname === "/login" || pathname === "/registro")) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -50,5 +50,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: ["/", "/dashboard/:path*", "/login", "/registro", "/auth/callback"],
 };
