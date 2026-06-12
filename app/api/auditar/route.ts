@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import type { FormData, InformeAuditoria } from "@/types/informe";
 
 const client = new Anthropic();
@@ -90,6 +91,24 @@ export async function POST(req: NextRequest) {
     const raw = message.content[0].type === "text" ? message.content[0].text : "";
     const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
     const informe: InformeAuditoria = JSON.parse(cleaned);
+
+    // Guardar en Supabase si hay sesión activa
+    try {
+      const supabase = await createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("auditorias").insert({
+          user_id: user.id,
+          perfil: informe.perfil,
+          red_social: informe.redSocial,
+          score_general: informe.scoreGeneral,
+          nivel_general: informe.nivelGeneral,
+          informe,
+        });
+      }
+    } catch (e) {
+      console.warn("No se pudo guardar en Supabase:", e);
+    }
 
     return NextResponse.json(informe);
   } catch (err) {
