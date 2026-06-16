@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PreApproval } from "mercadopago";
-import { mpClient, PRECIO_PRO_ARS, siteUrl } from "@/lib/mercadopago";
+import { mpClient, mpErrorMessage, PRECIO_PRO_ARS, siteUrl } from "@/lib/mercadopago";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ initPoint: result.init_point });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    const msg = mpErrorMessage(err);
     console.error("Error en /api/suscripcion/crear:", msg);
     return NextResponse.json({ error: msg }, { status: 500 });
   }

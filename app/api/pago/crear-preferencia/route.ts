@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Preference } from "mercadopago";
-import { mpClient, PRECIO_INFORME_ARS, siteUrl } from "@/lib/mercadopago";
+import { mpClient, mpErrorMessage, PRECIO_INFORME_ARS, siteUrl } from "@/lib/mercadopago";
 import { createClient } from "@/lib/supabase/server";
 import type { FormData } from "@/types/informe";
 
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ initPoint: result.init_point });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    const msg = mpErrorMessage(err);
     console.error("Error en /api/pago/crear-preferencia:", msg);
     return NextResponse.json({ error: msg }, { status: 500 });
   }
