@@ -20,6 +20,7 @@ export default function AuditandoClient() {
   const router = useRouter();
   const perfil = params.get("perfil") ?? "@usuario";
   const shouldSubmit = params.get("submit") === "1";
+  const ref = params.get("ref");
 
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -39,7 +40,7 @@ export default function AuditandoClient() {
     setProgress(Math.round(((currentStep + 1) / steps.length) * 100));
   }, [currentStep]);
 
-  // Call API if coming from form
+  // Call API if coming from form (flujo legado sin pago)
   useEffect(() => {
     if (!shouldSubmit || called.current) return;
     called.current = true;
@@ -69,6 +70,52 @@ export default function AuditandoClient() {
         setError(`Error: ${msg}`);
       });
   }, [shouldSubmit, router]);
+
+  // Esperar confirmación del pago y generar el informe
+  useEffect(() => {
+    if (!ref || called.current) return;
+    called.current = true;
+
+    let attempts = 0;
+    const maxAttempts = 30;
+
+    const poll = async () => {
+      attempts++;
+      try {
+        const r = await fetch(`/api/pago/estado?ref=${ref}`);
+        const data = await r.json();
+
+        if (data.status === "approved") {
+          const res = await fetch("/api/auditar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ref }),
+          });
+          const informe = await res.json();
+          if (informe.error) throw new Error(informe.error);
+          sessionStorage.setItem("auditai_informe", JSON.stringify(informe));
+          setTimeout(() => router.push("/informe"), 1200);
+          return;
+        }
+
+        if (data.status === "rejected" || data.status === "cancelled") {
+          throw new Error("El pago fue rechazado.");
+        }
+
+        if (attempts >= maxAttempts) {
+          throw new Error("El pago está demorando en confirmarse. Probá de nuevo en unos minutos.");
+        }
+
+        setTimeout(poll, 2000);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error(err);
+        setError(`Error: ${msg}`);
+      }
+    };
+
+    poll();
+  }, [ref, router]);
 
   return (
     <div

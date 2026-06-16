@@ -71,7 +71,32 @@ Respondé ÚNICAMENTE con el JSON, sin texto adicional.
 
 export async function POST(req: NextRequest) {
   try {
-    const body: FormData = await req.json();
+    const payload = await req.json();
+    let body: FormData;
+    const supabaseEarly = await createClient();
+
+    if (payload.ref) {
+      const { data: pago, error: pagoError } = await supabaseEarly
+        .from("pagos")
+        .select("form_data, status, used")
+        .eq("external_reference", payload.ref)
+        .single();
+
+      if (pagoError || !pago) {
+        return NextResponse.json({ error: "Pago no encontrado" }, { status: 404 });
+      }
+      if (pago.status !== "approved") {
+        return NextResponse.json({ error: "El pago todavía no fue aprobado" }, { status: 402 });
+      }
+      if (pago.used) {
+        return NextResponse.json({ error: "Este pago ya fue utilizado" }, { status: 409 });
+      }
+
+      body = pago.form_data as FormData;
+      await supabaseEarly.from("pagos").update({ used: true }).eq("external_reference", payload.ref);
+    } else {
+      body = payload as FormData;
+    }
 
     if (!body.perfil || !body.redSocial || !body.nicho || !body.objetivo) {
       return NextResponse.json({ error: "Faltan campos obligatorios" }, { status: 400 });
@@ -94,10 +119,9 @@ export async function POST(req: NextRequest) {
 
     // Guardar en Supabase si hay sesión activa
     try {
-      const supabase = await createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await supabaseEarly.auth.getUser();
       if (user) {
-        await supabase.from("auditorias").insert({
+        await supabaseEarly.from("auditorias").insert({
           user_id: user.id,
           perfil: informe.perfil,
           red_social: informe.redSocial,

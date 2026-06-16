@@ -33,7 +33,9 @@ export default function AuditoriaClient() {
     descripcion: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(
+    params.get("pago") === "error" ? "El pago no se completó. Intentá de nuevo." : ""
+  );
 
   function set(key: keyof FormData, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -49,8 +51,14 @@ export default function AuditoriaClient() {
     setLoading(true);
 
     try {
-      sessionStorage.setItem("auditai_form", JSON.stringify(form));
-      router.push(`/auditando?perfil=${encodeURIComponent(form.perfil)}&submit=1`);
+      const res = await fetch("/api/pago/crear-preferencia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (data.error || !data.initPoint) throw new Error(data.error ?? "No se pudo iniciar el pago");
+      window.location.href = data.initPoint;
     } catch {
       setError("Algo salió mal. Intentá de nuevo.");
       setLoading(false);
