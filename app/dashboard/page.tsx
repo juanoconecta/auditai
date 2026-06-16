@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import DashboardClient from "./DashboardClient";
 
@@ -13,5 +14,16 @@ export default async function DashboardPage() {
     .select("id, perfil, red_social, score_general, nivel_general, created_at")
     .order("created_at", { ascending: false });
 
-  return <DashboardClient user={user} auditorias={auditorias ?? []} />;
+  const { data: suscripcion } = await supabase
+    .from("suscripciones")
+    .select("status")
+    .eq("user_id", user.id)
+    .eq("status", "authorized")
+    .maybeSingle();
+
+  return (
+    <Suspense>
+      <DashboardClient user={user} auditorias={auditorias ?? []} esPro={!!suscripcion} />
+    </Suspense>
+  );
 }

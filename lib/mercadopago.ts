@@ -5,6 +5,7 @@ export const mpClient = new MercadoPagoConfig({
 });
 
 export const PRECIO_INFORME_ARS = Number(process.env.PRECIO_INFORME_ARS ?? "9000");
+export const PRECIO_PRO_ARS = Number(process.env.PRECIO_PRO_ARS ?? "19000");
 
 export function siteUrl(requestOrigin: string) {
   return process.env.NEXT_PUBLIC_SITE_URL || requestOrigin;

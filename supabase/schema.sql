@@ -54,3 +54,31 @@ create policy "Anyone can update pagos"
   using (true);
 
 create index pagos_external_reference_idx on public.pagos(external_reference);
+
+-- Tabla de suscripciones (plan "Pro" recurrente vía Mercado Pago Suscripciones)
+create table if not exists public.suscripciones (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  external_reference uuid default gen_random_uuid() not null unique,
+  mp_preapproval_id text,
+  status text not null default 'pending',
+  created_at timestamptz default now() not null
+);
+
+alter table public.suscripciones enable row level security;
+
+create policy "Users can read own suscripciones"
+  on public.suscripciones for select
+  using (auth.uid() = user_id);
+
+create policy "Users can insert own suscripciones"
+  on public.suscripciones for insert
+  with check (auth.uid() = user_id);
+
+-- El webhook de Mercado Pago no tiene sesión de usuario
+create policy "Anyone can update suscripciones"
+  on public.suscripciones for update
+  using (true);
+
+create index suscripciones_user_id_idx on public.suscripciones(user_id);
+create index suscripciones_external_reference_idx on public.suscripciones(external_reference);

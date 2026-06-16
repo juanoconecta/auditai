@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { createClient } from "@/lib/supabase/client";
@@ -27,14 +28,40 @@ const redIcon: Record<string, string> = {
   linkedin: "💼",
 };
 
-export default function DashboardClient({ user, auditorias }: { user: User; auditorias: Auditoria[] }) {
+export default function DashboardClient({
+  user,
+  auditorias,
+  esPro,
+}: {
+  user: User;
+  auditorias: Auditoria[];
+  esPro: boolean;
+}) {
   const router = useRouter();
+  const params = useSearchParams();
+  const [loadingPro, setLoadingPro] = useState(false);
+  const [errorPro, setErrorPro] = useState("");
+  const suscripcionPendiente = params.get("suscripcion") === "ok" && !esPro;
 
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/");
     router.refresh();
+  }
+
+  async function handleSuscribirsePro() {
+    setLoadingPro(true);
+    setErrorPro("");
+    try {
+      const res = await fetch("/api/suscripcion/crear", { method: "POST" });
+      const data = await res.json();
+      if (data.error || !data.initPoint) throw new Error(data.error ?? "No se pudo iniciar la suscripción");
+      window.location.href = data.initPoint;
+    } catch (err) {
+      setErrorPro(err instanceof Error ? err.message : "Algo salió mal");
+      setLoadingPro(false);
+    }
   }
 
   return (
@@ -56,6 +83,47 @@ export default function DashboardClient({ user, auditorias }: { user: User; audi
               Salir
             </button>
           </div>
+        </div>
+
+        {/* Plan Pro */}
+        <div
+          className="flex items-center justify-between p-5 mb-8 rounded-xl"
+          style={{
+            background: esPro ? "rgba(78,205,196,0.1)" : "#2D2D44",
+            border: esPro ? "1px solid rgba(78,205,196,0.3)" : "1px solid rgba(255,255,255,0.06)",
+            borderRadius: "14px",
+          }}
+        >
+          <div>
+            <div
+              className="text-sm font-bold mb-1"
+              style={{ fontFamily: "Space Grotesk, sans-serif", color: esPro ? "#4ECDC4" : "#FFFFFF" }}
+            >
+              {esPro ? "✓ Plan Pro activo" : "Plan Gratis"}
+            </div>
+            <div className="text-xs" style={{ color: "rgba(255,255,255,0.45)", fontFamily: "DM Sans, sans-serif" }}>
+              {esPro
+                ? "Auditorías ilimitadas, historial completo y soporte prioritario"
+                : suscripcionPendiente
+                  ? "Tu suscripción está siendo confirmada por Mercado Pago..."
+                  : "Pasate a Pro para auditorías ilimitadas sin pagar por informe"}
+            </div>
+            {errorPro && (
+              <div className="text-xs mt-2" style={{ color: "#FF6B6B", fontFamily: "DM Sans, sans-serif" }}>
+                {errorPro}
+              </div>
+            )}
+          </div>
+          {!esPro && (
+            <button
+              onClick={handleSuscribirsePro}
+              disabled={loadingPro}
+              className="text-sm font-bold px-5 py-2.5 rounded-lg transition-opacity hover:opacity-90 disabled:opacity-50 flex-shrink-0"
+              style={{ background: "#FF6B6B", color: "#1A1A2E", borderRadius: "8px", fontFamily: "DM Sans, sans-serif" }}
+            >
+              {loadingPro ? "Redirigiendo..." : "Empezar Pro"}
+            </button>
+          )}
         </div>
 
         {/* Bienvenida */}

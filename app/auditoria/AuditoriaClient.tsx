@@ -51,6 +51,14 @@ export default function AuditoriaClient() {
     setLoading(true);
 
     try {
+      const estado = await fetch("/api/suscripcion/estado").then((r) => r.json());
+
+      if (estado.pro) {
+        sessionStorage.setItem("auditai_form", JSON.stringify(form));
+        router.push(`/auditando?perfil=${encodeURIComponent(form.perfil)}&submit=1`);
+        return;
+      }
+
       const res = await fetch("/api/pago/crear-preferencia", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
